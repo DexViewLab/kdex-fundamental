@@ -4,7 +4,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"sync"
 	"time"
 
@@ -27,33 +26,22 @@ var ProxyIPPort string
 // MysqlDSN ...
 var MysqlDSN string
 
-var rpcIPPort = "gamepoint.sogou:80"
-var rpcUser, rpcPass = "joe", "333"
 
 // GetHTTPClient returns the instance of a http.Client
 func GetHTTPClient() *http.Client {
 	httpOnce.Do(func() {
-
-		var proxy = func(_ *http.Request) (*url.URL, error) {
-			if ProxyIPPort == "" {
-				return nil, nil
-			}
-			return url.Parse("http://" + ProxyIPPort)
-		}
-
 		var netTransport = &http.Transport{
 			Dial: (&net.Dialer{
-				Timeout:   5 * time.Second,
+				Timeout:   10 * time.Second,
 				KeepAlive: 30 * time.Second,
 			}).Dial,
-			TLSHandshakeTimeout:   5 * time.Second,
-			ResponseHeaderTimeout: 5 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ResponseHeaderTimeout: 10 * time.Second,
 			ExpectContinueTimeout: 1 * time.Second,
-			Proxy: proxy,
 		}
 
 		netClient = &http.Client{
-			Timeout:   time.Second * 5,
+			Timeout:   time.Second * 10,
 			Transport: netTransport,
 		}
 
